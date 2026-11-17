@@ -290,7 +290,7 @@ ggsave("vat_2029_deciles.png", q, width = 10, height = 6.2, dpi = 200)
 # PART 3: £1,000 per adult minus the household VAT cost in 2029-30
 # ==========================================================================
 # Parts 3-5 retain the earlier annual-payment illustrations for reference.
-# The current browser calculator pays once over two years; see Part 7.
+# The companion page pays once over two years; see Parts 7 and 9.
 # ONS Family Spending 2024-25, workbook 1, table 3.1E, columns E:N:
 # rows 18 (sample households) and 20 (sample adults).
 # Equivalised disposable income deciles, updated two-adult reference scale;
@@ -511,14 +511,14 @@ cat(sprintf("Minimum cost to make decile 1 break even (no adult floor): £%.1fbn
 
 
 # ==========================================================================
-# PART 6: Browser simulator inputs, in 2029-30 prices
+# PART 6: Household inputs by decile, in 2029-30 prices
 # ==========================================================================
 # OBR Economic and fiscal outlook, October 2026, table A.3 (financial-year CPI).
 # https://www.gov.uk/government/publications/october-2026-economic-and-fiscal-outlook/economic-and-fiscal-outlook-october-2026
 # Compound 2025-26 through 2029-30 to move the 2024-25 spending base forward.
 # Household composition and eligible populations stay fixed. Payment dials are
 # nominal 2029-30 pounds. Fiscal revenue inputs are already in 2029-30 pounds.
-simulator_deciles <- data.frame(
+household_deciles <- data.frame(
   decile = 1:10,
   adults = compensation$adults_per_household,
   children = family_compensation$children_per_household,
@@ -532,7 +532,7 @@ simulator_deciles <- data.frame(
 
 
 # ==========================================================================
-# PART 7: Current calculator — one payment covering two years
+# PART 7: One payment covering two years
 # ==========================================================================
 # Annual VAT cost = original cost x compounded CPI, once.
 # Two-year VAT cost = annual VAT cost x 2 years, once.
@@ -548,7 +548,7 @@ calculate_two_year_scenario <- function(adult_payment = 300, child_payment = 800
   years <- 2
   weeks <- 104
   factor <- prod(1 + inflation_rates / 100)
-  households <- simulator_deciles
+  households <- household_deciles
   households$vat_annual <- households$vat_cost_2024 * factor
   households$vat_two_years <- households$vat_annual * years
   households$payment_once <- households$adults * adult_payment +
@@ -815,7 +815,7 @@ if (requireNamespace("jsonlite", quietly = TRUE)) {
     rows = companion_table,
     median = companion_median,
     state = list(adult = companion_adult, child = companion_child, rates = cpi_rates),
-    DATA = list(deciles = simulator_deciles, cpiYears = cpi_years, cpiRates = cpi_rates,
+    DATA = list(deciles = household_deciles, cpiYears = cpi_years, cpiRates = cpi_rates,
                 adultPopulation = eligible_adults, childPopulation = estimated_children,
                 vatRevenue = policy_vat_revenue_bn, thresholdRevenue = threshold_revenue_bn,
                 stampCost = stamp_duty_abolition_bn)
