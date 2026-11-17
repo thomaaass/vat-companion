@@ -1,0 +1,5 @@
+*.png
+companion_data.json
+Rplots.pdf
+.Rhistory
+.DS_Store
